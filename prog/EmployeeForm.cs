@@ -234,36 +234,79 @@ namespace ARM_Отдела_кадров
 
         private bool ValidateForm()
         {
+            // Проверка фамилии
             if (string.IsNullOrWhiteSpace(txtLastName.Text))
             {
-                MessageBox.Show("Введите фамилию", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Поле 'Фамилия' обязательно для заполнения.",
+                    "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtLastName.Focus();
                 return false;
             }
 
+            // Проверка имени
             if (string.IsNullOrWhiteSpace(txtFirstName.Text))
             {
-                MessageBox.Show("Введите имя", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Поле 'Имя' обязательно для заполнения.",
+                    "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtFirstName.Focus();
                 return false;
             }
 
+            // Проверка даты рождения (не должна быть в будущем)
+            if (dtpBirthDate.Value > DateTime.Now)
+            {
+                MessageBox.Show("Дата рождения не может быть в будущем.",
+                    "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            // Проверка возраста (не моложе 14 лет для работы)
             if (dtpBirthDate.Value > DateTime.Now.AddYears(-14))
             {
-                MessageBox.Show("Сотрудник должен быть старше 14 лет", "Ошибка",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Сотрудник должен быть старше 14 лет.",
+                    "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(txtPassportSeries.Text) || string.IsNullOrWhiteSpace(txtPassportNumber.Text))
+            // Проверка паспортных данных
+            if (string.IsNullOrWhiteSpace(txtPassportSeries.Text) ||
+                string.IsNullOrWhiteSpace(txtPassportNumber.Text))
             {
-                MessageBox.Show("Введите паспортные данные", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Паспортные данные обязательны для заполнения.",
+                    "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return false;
             }
 
+            // Проверка серии паспорта (4 цифры)
+            if (txtPassportSeries.Text.Length != 4 || !System.Text.RegularExpressions.Regex.IsMatch(txtPassportSeries.Text, @"^\d{4}$"))
+            {
+                MessageBox.Show("Серия паспорта должна состоять из 4 цифр.",
+                    "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            // Проверка номера паспорта (6 цифр)
+            if (txtPassportNumber.Text.Length != 6 || !System.Text.RegularExpressions.Regex.IsMatch(txtPassportNumber.Text, @"^\d{6}$"))
+            {
+                MessageBox.Show("Номер паспорта должен состоять из 6 цифр.",
+                    "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            // Проверка телефона (простая проверка на наличие цифр)
+            if (string.IsNullOrWhiteSpace(txtPhone.Text) || !System.Text.RegularExpressions.Regex.IsMatch(txtPhone.Text, @"[\d\-\+\(\)\s]{10,}"))
+            {
+                MessageBox.Show("Введите корректный номер телефона.",
+                    "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
+            }
+
+            // Проверка выбора должности
             if (cmbPosition.SelectedItem == null)
             {
-                MessageBox.Show("Выберите должность", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Выберите должность сотрудника.",
+                    "Ошибка ввода", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                cmbPosition.Focus();
                 return false;
             }
 

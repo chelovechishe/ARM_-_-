@@ -15,36 +15,83 @@ namespace ARM_Отдела_кадров.Services
 
         public EmployeeService()
         {
-            _context = new AppDbContext();
-            _context.Database.EnsureCreated();
+            try
+            {
+                _context = new AppDbContext();
+                _context.Database.EnsureCreated();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при инициализации базы данных: {ex.Message}\n\n" +
+                    "Проверьте, что файл базы данных доступен для записи и нет проблем с подключением.",
+                    "Критическая ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                throw;
+            }
         }
 
         public List<Employee> GetAllEmployees()
         {
-            return _context.Employees
-                .Include(e => e.Position)
-                .OrderBy(e => e.LastName)
-                .ToList();
+            try
+            {
+                return _context.Employees
+                    .Include(e => e.Position)
+                    .OrderBy(e => e.LastName)
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке списка сотрудников: {ex.Message}",
+                    "Ошибка базы данных", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return new List<Employee>();
+            }
         }
 
         public List<Employee> GetActiveEmployees()
         {
-            return _context.Employees
-                .Include(e => e.Position)
-                .Where(e => e.Status == "Работает")
-                .OrderBy(e => e.LastName)
-                .ToList();
+            try
+            {
+                return _context.Employees
+                    .Include(e => e.Position)
+                    .Where(e => e.Status == "Работает")
+                    .OrderBy(e => e.LastName)
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке списка работающих сотрудников: {ex.Message}",
+                    "Ошибка базы данных", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return new List<Employee>();
+            }
         }
 
         public List<Position> GetAllPositions()
         {
-            return _context.Positions.OrderBy(p => p.PositionName).ToList();
+            try
+            {
+                return _context.Positions.OrderBy(p => p.PositionName).ToList();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке списка должностей: {ex.Message}",
+                    "Ошибка базы данных", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return new List<Position>();
+            }
         }
 
         public User? ValidateUser(string login, string password)
         {
-            return _context.Users
-                .FirstOrDefault(u => u.Login == login && u.Password == password);
+            try
+            {
+                return _context.Users
+                    .FirstOrDefault(u => u.Login == login && u.Password == password);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при проверке учётных данных: {ex.Message}\n\n" +
+                    "Проверьте подключение к базе данных.",
+                    "Ошибка авторизации", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
         }
 
         public bool AddEmployee(Employee employee)
@@ -55,8 +102,16 @@ namespace ARM_Отдела_кадров.Services
                 _context.SaveChanges();
                 return true;
             }
-            catch
+            catch (DbUpdateException ex)
             {
+                MessageBox.Show($"Ошибка базы данных при добавлении сотрудника: {ex.InnerException?.Message ?? ex.Message}",
+                    "Ошибка сохранения", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Непредвиденная ошибка при добавлении сотрудника: {ex.Message}",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
         }
@@ -66,7 +121,12 @@ namespace ARM_Отдела_кадров.Services
             try
             {
                 var existing = _context.Employees.Find(employee.EmployeeID);
-                if (existing == null) return false;
+                if (existing == null)
+                {
+                    MessageBox.Show("Сотрудник не найден в базе данных", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
 
                 existing.LastName = employee.LastName;
                 existing.FirstName = employee.FirstName;
@@ -83,8 +143,16 @@ namespace ARM_Отдела_кадров.Services
                 _context.SaveChanges();
                 return true;
             }
-            catch
+            catch (DbUpdateException ex)
             {
+                MessageBox.Show($"Ошибка базы данных при обновлении сотрудника: {ex.InnerException?.Message ?? ex.Message}",
+                    "Ошибка сохранения", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Непредвиденная ошибка при обновлении сотрудника: {ex.Message}",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
         }
@@ -94,32 +162,77 @@ namespace ARM_Отдела_кадров.Services
             try
             {
                 var employee = _context.Employees.Find(employeeId);
-                if (employee == null) return false;
+                if (employee == null)
+                {
+                    MessageBox.Show("Сотрудник не найден в базе данных", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
 
                 _context.Employees.Remove(employee);
                 _context.SaveChanges();
                 return true;
             }
-            catch
+            catch (DbUpdateException ex)
             {
+                MessageBox.Show($"Невозможно удалить сотрудника, так как с ним связаны другие данные.\n\n" +
+                    $"Детали ошибки: {ex.InnerException?.Message ?? ex.Message}",
+                    "Ошибка удаления", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при удалении сотрудника: {ex.Message}",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
         }
 
-        public bool TerminateEmployee(int employeeId, DateTime terminationDate)
+        public bool TerminateEmployee(int employeeId, DateTime terminationDate, string reason = "")
         {
             try
             {
                 var employee = _context.Employees.Find(employeeId);
-                if (employee == null) return false;
+                if (employee == null)
+                {
+                    MessageBox.Show("Сотрудник не найден в базе данных", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+
+                if (employee.Status == "Уволен")
+                {
+                    MessageBox.Show("Сотрудник уже уволен", "Предупреждение",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
+                }
 
                 employee.Status = "Уволен";
                 employee.TerminationDate = terminationDate;
+
+                var personnelEvent = new PersonnelEvent
+                {
+                    EmployeeID = employeeId,
+                    PositionID = employee.PositionID,
+                    EventType = "Увольнение",
+                    EventDate = terminationDate,
+                    Reason = string.IsNullOrEmpty(reason) ? "Увольнение по инициативе работодателя" : reason
+                };
+                _context.PersonnelEvents.Add(personnelEvent);
+
                 _context.SaveChanges();
                 return true;
             }
-            catch
+            catch (DbUpdateException ex)
             {
+                MessageBox.Show($"Ошибка базы данных при увольнении сотрудника: {ex.InnerException?.Message ?? ex.Message}",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Непредвиденная ошибка при увольнении сотрудника: {ex.Message}",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
         }
@@ -129,9 +242,37 @@ namespace ARM_Отдела_кадров.Services
             try
             {
                 var employee = _context.Employees.Find(employeeId);
-                if (employee == null) return false;
+                if (employee == null)
+                {
+                    MessageBox.Show("Сотрудник не найден в базе данных", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+
+                if (employee.Status == "Уволен")
+                {
+                    MessageBox.Show("Нельзя перевести уволенного сотрудника", "Предупреждение",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
+                }
 
                 var oldPositionId = employee.PositionID;
+
+                if (oldPositionId == newPositionId)
+                {
+                    MessageBox.Show("Сотрудник уже занимает эту должность", "Предупреждение",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
+                }
+
+                var newPosition = _context.Positions.Find(newPositionId);
+                if (newPosition == null)
+                {
+                    MessageBox.Show("Выбранная должность не существует", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+
                 employee.PositionID = newPositionId;
 
                 var personnelEvent = new PersonnelEvent
@@ -140,12 +281,118 @@ namespace ARM_Отдела_кадров.Services
                     PositionID = oldPositionId,
                     EventType = "Перевод",
                     EventDate = transferDate,
-                    Reason = $"Переведён с должности ID {oldPositionId} на должность ID {newPositionId}"
+                    Reason = $"Переведён на должность {newPosition.PositionName}"
                 };
                 _context.PersonnelEvents.Add(personnelEvent);
 
                 _context.SaveChanges();
                 return true;
+            }
+            catch (DbUpdateException ex)
+            {
+                MessageBox.Show($"Ошибка базы данных при переводе сотрудника: {ex.InnerException?.Message ?? ex.Message}",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Непредвиденная ошибка при переводе сотрудника: {ex.Message}",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        public List<Employee> SearchEmployees(string searchText)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(searchText))
+                {
+                    return GetAllEmployees();
+                }
+
+                return _context.Employees
+                    .Include(e => e.Position)
+                    .Where(e => e.LastName.Contains(searchText) ||
+                                e.FirstName.Contains(searchText) ||
+                                (e.MiddleName != null && e.MiddleName.Contains(searchText)))
+                    .OrderBy(e => e.LastName)
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при поиске сотрудников: {ex.Message}",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return new List<Employee>();
+            }
+        }
+
+        public Employee? GetEmployeeById(int employeeId)
+        {
+            try
+            {
+                return _context.Employees
+                    .Include(e => e.Position)
+                    .FirstOrDefault(e => e.EmployeeID == employeeId);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке данных сотрудника: {ex.Message}",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
+        }
+
+        public string GetPositionNameById(int positionId)
+        {
+            try
+            {
+                var position = _context.Positions.Find(positionId);
+                return position?.PositionName ?? "Не указана";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при получении названия должности: {ex.Message}",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return "Ошибка загрузки";
+            }
+        }
+
+        public bool AddPosition(string positionName, decimal salary)
+        {
+            try
+            {
+                var existing = _context.Positions.FirstOrDefault(p => p.PositionName == positionName);
+                if (existing != null)
+                {
+                    MessageBox.Show("Должность с таким названием уже существует", "Предупреждение",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
+                }
+
+                var position = new Position
+                {
+                    PositionName = positionName,
+                    Salary = salary
+                };
+
+                _context.Positions.Add(position);
+                _context.SaveChanges();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при добавлении должности: {ex.Message}",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        public bool DatabaseConnected()
+        {
+            try
+            {
+                return _context.Database.CanConnect();
             }
             catch
             {
@@ -153,26 +400,28 @@ namespace ARM_Отдела_кадров.Services
             }
         }
 
-        public List<Employee> SearchEmployees(string searchText)
+        public int GetActiveEmployeesCount()
         {
-            return _context.Employees
-                .Include(e => e.Position)
-                .Where(e => e.LastName.Contains(searchText) || e.FirstName.Contains(searchText))
-                .OrderBy(e => e.LastName)
-                .ToList();
+            try
+            {
+                return _context.Employees.Count(e => e.Status == "Работает");
+            }
+            catch
+            {
+                return 0;
+            }
         }
 
-        public Employee? GetEmployeeById(int employeeId)
+        public int GetAllEmployeesCount()
         {
-            return _context.Employees
-                .Include(e => e.Position)
-                .FirstOrDefault(e => e.EmployeeID == employeeId);
-        }
-
-        public string GetPositionNameById(int positionId)
-        {
-            var position = _context.Positions.Find(positionId);
-            return position?.PositionName ?? string.Empty;
+            try
+            {
+                return _context.Employees.Count();
+            }
+            catch
+            {
+                return 0;
+            }
         }
     }
 }
