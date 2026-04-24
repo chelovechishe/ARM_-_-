@@ -1,6 +1,6 @@
 ﻿namespace ARM_Отдела_кадров
 {
-    partial class Form1
+    partial class MainForm
     {
         /// <summary>
         ///  Required designer variable.
