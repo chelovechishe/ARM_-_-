@@ -10,6 +10,20 @@ namespace ARM_Отдела_кадров
         private List<Employee> _employees;
         private string _userRole;
 
+        private Button btnUsers;
+        private DataGridView dgvEmployees;
+        private TextBox txtSearch;
+        private Button btnSearch;
+        private Button btnAdd;
+        private Button btnEdit;
+        private Button btnDelete;
+        private Button btnHire;
+        private Button btnTransfer;
+        private Button btnTerminate;
+        private Button btnReports;
+        private StatusStrip statusStrip;
+        private ToolStripStatusLabel lblStatus;
+
         public MainForm(string role)
         {
             InitializeComponent();
@@ -99,24 +113,32 @@ namespace ARM_Отдела_кадров
             this.Size = new System.Drawing.Size(900, 550);
             this.StartPosition = FormStartPosition.CenterScreen;
 
+            this.btnUsers = new Button();
+            this.btnUsers.Text = "Пользователи";
+            this.btnUsers.Location = new System.Drawing.Point(680, 14);
+            this.btnUsers.Size = new System.Drawing.Size(100, 25);
+            this.btnUsers.Click += new EventHandler(this.btnUsers_Click);
+
+            this.Controls.Add(this.btnUsers);
+            this.Controls.Add(this.dgvEmployees);
+            this.Controls.Add(this.txtSearch);
+            this.Controls.Add(this.btnSearch);
+            this.Controls.Add(this.btnAdd);
+            this.Controls.Add(this.btnEdit);
+            this.Controls.Add(this.btnDelete);
+            this.Controls.Add(this.btnHire);
+            this.Controls.Add(this.btnTransfer);
+            this.Controls.Add(this.btnTerminate);
+            this.Controls.Add(this.btnReports);
+            this.Controls.Add(this.statusStrip);
+
+        
+
             this.statusStrip.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvEmployees)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
         }
-
-        private DataGridView dgvEmployees;
-        private TextBox txtSearch;
-        private Button btnSearch;
-        private Button btnAdd;
-        private Button btnEdit;
-        private Button btnDelete;
-        private Button btnHire;
-        private Button btnTransfer;
-        private Button btnTerminate;
-        private Button btnReports;
-        private StatusStrip statusStrip;
-        private ToolStripStatusLabel lblStatus;
 
         private void LoadEmployees()
         {
@@ -179,6 +201,19 @@ namespace ARM_Отдела_кадров
                 btnTransfer.Enabled = false;
                 btnTerminate.Enabled = false;
             }
+            if (_userRole == "User")
+            {
+                btnUsers.Enabled = false;
+            }
+            else
+            {
+                btnUsers.Enabled = true;
+            }
+        }
+        private void btnUsers_Click(object sender, EventArgs e)
+        {
+            UsersManagementForm usersForm = new UsersManagementForm(_service, _userRole);
+            usersForm.ShowDialog();
         }
 
         private void btnSearch_Click(object sender, EventArgs e)

@@ -55,6 +55,12 @@ namespace ARM_Отдела_кадров
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
 
+            this.Controls.Add(this.btnEmployeeList);
+            this.Controls.Add(this.btnActiveEmployees);
+            this.Controls.Add(this.btnExportExcel);
+            this.Controls.Add(this.btnClose);
+
+
             this.ResumeLayout(false);
             this.PerformLayout();
         }

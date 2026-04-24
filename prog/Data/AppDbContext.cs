@@ -43,17 +43,16 @@ namespace ARM_Отдела_кадров.Data
                 .WithMany(po => po.PersonnelEvents)
                 .HasForeignKey(p => p.PositionID);
 
+            modelBuilder.Entity<User>().HasData(
+                new User { UserID = 1, Login = "Admin", Password = "123", Role = "Administrator" },
+                new User { UserID = 2, Login = "User", Password = "123", Role = "User" }
+            );
             modelBuilder.Entity<Position>().HasData(
                 new Position { PositionID = 1, PositionName = "Директор", Salary = 150000 },
                 new Position { PositionID = 2, PositionName = "Главный бухгалтер", Salary = 120000 },
                 new Position { PositionID = 3, PositionName = "Программист", Salary = 80000 },
                 new Position { PositionID = 4, PositionName = "Менеджер по персоналу", Salary = 70000 },
                 new Position { PositionID = 5, PositionName = "Секретарь", Salary = 50000 }
-            );
-
-            modelBuilder.Entity<User>().HasData(
-                new User { UserID = 1, Login = "Admin", Password = "123", Role = "Administrator" },
-                new User { UserID = 2, Login = "User", Password = "123", Role = "User" }
             );
         }
     }

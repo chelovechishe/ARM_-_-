@@ -76,6 +76,15 @@ namespace ARM_Отдела_кадров
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
 
+            this.Controls.Add(this.lblEmployeeName);
+            this.Controls.Add(this.lblNewPosition);
+            this.Controls.Add(this.lblTransferDate);
+            this.Controls.Add(this.cmbNewPosition);
+            this.Controls.Add(this.dtpTransferDate);
+            this.Controls.Add(this.btnTransfer);
+            this.Controls.Add(this.btnCancel);
+
+
             this.ResumeLayout(false);
             this.PerformLayout();
         }

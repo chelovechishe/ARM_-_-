@@ -423,5 +423,219 @@ namespace ARM_Отдела_кадров.Services
                 return 0;
             }
         }
+        // Получить всех пользователей
+        public List<User> GetAllUsers()
+        {
+            try
+            {
+                return _context.Users.OrderBy(u => u.Login).ToList();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке пользователей: {ex.Message}",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return new List<User>();
+            }
+        }
+
+        // Получить пользователя по ID
+        public User? GetUserById(int userId)
+        {
+            try
+            {
+                return _context.Users.Find(userId);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке пользователя: {ex.Message}",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
+        }
+
+        // Проверка существования логина
+        public bool LoginExists(string login, int? excludeUserId = null)
+        {
+            try
+            {
+                var query = _context.Users.Where(u => u.Login == login);
+                if (excludeUserId.HasValue)
+                {
+                    query = query.Where(u => u.UserID != excludeUserId.Value);
+                }
+                return query.Any();
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        // Добавление нового пользователя
+        public bool AddUser(string login, string password, string role)
+        {
+            try
+            {
+                // Проверка на пустые поля
+                if (string.IsNullOrWhiteSpace(login))
+                {
+                    MessageBox.Show("Логин не может быть пустым", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
+                }
+
+                if (string.IsNullOrWhiteSpace(password))
+                {
+                    MessageBox.Show("Пароль не может быть пустым", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
+                }
+
+                // Проверка на существование логина
+                if (LoginExists(login))
+                {
+                    MessageBox.Show("Пользователь с таким логином уже существует", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
+                }
+
+                var user = new User
+                {
+                    Login = login,
+                    Password = password,
+                    Role = role
+                };
+
+                _context.Users.Add(user);
+                _context.SaveChanges();
+
+                MessageBox.Show($"Пользователь {login} успешно создан", "Успех",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при создании пользователя: {ex.Message}",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        // Обновление пользователя
+        public bool UpdateUser(int userId, string login, string password, string role)
+        {
+            try
+            {
+                var user = _context.Users.Find(userId);
+                if (user == null)
+                {
+                    MessageBox.Show("Пользователь не найден", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+
+                // Проверка на существование логина (исключая текущего пользователя)
+                if (LoginExists(login, userId))
+                {
+                    MessageBox.Show("Пользователь с таким логином уже существует", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
+                }
+
+                user.Login = login;
+                user.Password = password;
+                user.Role = role;
+
+                _context.SaveChanges();
+
+                MessageBox.Show($"Пользователь {login} успешно обновлён", "Успех",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при обновлении пользователя: {ex.Message}",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        // Удаление пользователя
+        public bool DeleteUser(int userId)
+        {
+            try
+            {
+                var user = _context.Users.Find(userId);
+                if (user == null)
+                {
+                    MessageBox.Show("Пользователь не найден", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+
+                // Запрет на удаление последнего администратора
+                if (user.Role == "Administrator" && _context.Users.Count(u => u.Role == "Administrator") <= 1)
+                {
+                    MessageBox.Show("Нельзя удалить последнего администратора системы",
+                        "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
+                }
+
+                _context.Users.Remove(user);
+                _context.SaveChanges();
+
+                MessageBox.Show($"Пользователь {user.Login} удалён", "Успех",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при удалении пользователя: {ex.Message}",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        // Смена пароля текущим пользователем
+        public bool ChangePassword(string login, string oldPassword, string newPassword)
+        {
+            try
+            {
+                var user = _context.Users.FirstOrDefault(u => u.Login == login);
+                if (user == null)
+                {
+                    MessageBox.Show("Пользователь не найден", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+
+                if (user.Password != oldPassword)
+                {
+                    MessageBox.Show("Старый пароль введён неверно", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
+                }
+
+                if (string.IsNullOrWhiteSpace(newPassword))
+                {
+                    MessageBox.Show("Новый пароль не может быть пустым", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return false;
+                }
+
+                user.Password = newPassword;
+                _context.SaveChanges();
+
+                MessageBox.Show("Пароль успешно изменён", "Успех",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при смене пароля: {ex.Message}",
+                    "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
     }
 }

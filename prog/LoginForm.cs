@@ -69,6 +69,13 @@ namespace ARM_Отдела_кадров
             this.btnExit.Size = new System.Drawing.Size(80, 30);
             this.btnExit.Click += new EventHandler(this.btnExit_Click);
 
+            this.Controls.Add(this.btnExit);
+            this.Controls.Add(this.btnLogin);
+            this.Controls.Add(this.txtPassword);
+            this.Controls.Add(this.txtLogin);
+            this.Controls.Add(this.lblPassword);
+            this.Controls.Add(this.lblLogin);
+
             // Настройки формы
             this.Text = "Авторизация";
             this.Size = new System.Drawing.Size(300, 200);

@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ARM_Отдела_кадров.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260423222216_FTry")]
-    partial class FTry
+    [Migration("20260424090008_1")]
+    partial class _1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

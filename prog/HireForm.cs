@@ -168,6 +168,37 @@ namespace ARM_Отдела_кадров
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
 
+            this.Controls.Add(this.txtLastName);
+            this.Controls.Add(this.txtFirstName);
+            this.Controls.Add(this.txtMiddleName);
+            this.Controls.Add(this.txtPassportSeries);
+            this.Controls.Add(this.txtPassportNumber);
+
+            this.Controls.Add(this.txtPassportIssuedBy);
+            this.Controls.Add(this.txtAddress);
+            this.Controls.Add(this.txtPhone);
+
+            this.Controls.Add(this.dtpBirthDate);
+            this.Controls.Add(this.dtpPassportIssueDate);
+            this.Controls.Add(this.dtpHireDate);
+
+            this.Controls.Add(this.cmbPosition);
+            this.Controls.Add(this.btnSave);
+            this.Controls.Add(this.btnCancel);
+            this.Controls.Add(this.lblLastName);
+            this.Controls.Add(this.lblFirstName);
+            this.Controls.Add(this.lblMiddleName);
+            this.Controls.Add(this.lblBirthDate);
+            this.Controls.Add(this.lblPassportSeries);
+            this.Controls.Add(this.lblPassportNumber);
+            this.Controls.Add(this.lblPassportIssuedBy);
+            this.Controls.Add(this.lblPassportIssueDate);
+            this.Controls.Add(this.lblAddress);
+            this.Controls.Add(this.lblPhone);
+            this.Controls.Add(this.lblHireDate);
+            this.Controls.Add(this.lblPosition);
+
+
             this.ResumeLayout(false);
             this.PerformLayout();
         }
