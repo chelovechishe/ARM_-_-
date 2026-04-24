@@ -10,7 +10,7 @@ namespace ARM_Отдела_кадров
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            //Application.Run(new LoginForm());
+            Application.Run(new LoginForm());
         }
     }
 }

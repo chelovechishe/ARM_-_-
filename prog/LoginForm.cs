@@ -22,7 +22,7 @@ namespace ARM_Отдела_кадров
         private Button btnExit;
         public LoginForm()
         {
-            InitializeComponent();
+            //InitializeComponent();
             InitializeComponent2();
             _service = new EmployeeService();
         }

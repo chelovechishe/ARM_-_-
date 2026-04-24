@@ -1,5 +1,6 @@
 ﻿using ARM_Отдела_кадров.Data;
 using ARM_Отдела_кадров.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
